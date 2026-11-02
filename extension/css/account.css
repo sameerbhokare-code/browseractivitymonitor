@@ -1,0 +1,132 @@
+[hidden] { display: none !important; }
+
+.page.narrow { max-width: 720px; }
+
+.topbar a.btn { text-decoration: none; }
+
+#signedIn { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+#signedIn[hidden] { display: none; }
+
+.stack { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+#signedIn .stack { margin-top: 0; }
+.stack h2 { margin: 0; }
+.stack p { margin: 0; line-height: 1.5; }
+
+.muted { color: var(--text-secondary); }
+.eyebrow {
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.big { font-size: 18px; font-weight: 700; margin: 4px 0 2px !important; }
+code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 12px;
+}
+
+.row-between { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.row-gap { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.segmented { align-self: flex-start; }
+
+/* Forms */
+.form { display: flex; flex-direction: column; gap: 12px; }
+.form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.form label[hidden] { display: none; }
+input[type="text"], input[type="email"], input[type="password"] {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.form .btn { align-self: flex-start; }
+
+.form-message { font-size: 13px; margin: 0; color: #fca5a5; }
+.form-message.ok { color: #86efac; }
+
+.inline-form { display: flex; gap: 8px; }
+.inline-form input { flex: 1; text-transform: uppercase; letter-spacing: 0.1em; }
+.inline-form input.plain { text-transform: none; letter-spacing: normal; font-weight: 600; }
+.hint { font-size: 12px; margin-top: -4px !important; }
+
+/* Toggle switch */
+.switch-row { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; line-height: 1.5; }
+.switch-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch {
+  flex-shrink: 0;
+  width: 40px; height: 22px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: var(--border);
+  position: relative;
+  transition: background 0.15s;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+.switch-row input:checked + .switch { background: var(--good); }
+.switch-row input:checked + .switch::after { transform: translateX(18px); }
+.switch-row input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+.switch-row input:disabled + .switch { opacity: 0.5; }
+
+.sync-status {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 10px; flex-wrap: wrap;
+  border-top: 1px solid var(--grid);
+  padding-top: 12px;
+  font-size: 13px;
+}
+
+/* People lists */
+.people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.people li {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+.people li.empty-row { color: var(--text-muted); justify-content: center; font-size: 13px; }
+.people .who { min-width: 0; }
+.people .who strong { display: block; }
+.people .who span { color: var(--text-secondary); font-size: 12px; word-break: break-all; }
+
+/* Consent box */
+.consent {
+  border: 1px solid #b45309;
+  background: rgba(180, 83, 9, 0.12);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.consent[hidden] { display: none; }
+.consent-who strong { font-size: 16px; }
+
+/* Invite code */
+.invite {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.invite[hidden] { display: none; }
+.code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}

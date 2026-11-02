@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#172033">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BAM">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>BAM Viewer</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #101827;
+  --surface: #1e293b;
+  --surface-2: #172033;
+  --border: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #2563eb;
+  --series-1: #3987e5;
+  --series-1-hover: #5c9df0;
+  --grid: #2a3649;
+  --good: #22c55e;
+  --danger: #f87171;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+}
+button, input, select { font: inherit; }
+
+/* ---------- Buttons & inputs ---------- */
+.btn {
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.ghost { background: transparent; color: var(--text-primary); border-color: var(--border); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+input[type="text"], input[type="email"], input[type="password"], input[type="search"], select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+}
+input:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.muted { color: var(--text-secondary); }
+.message { margin: 0; font-size: 13px; color: #fca5a5; }
+.message.ok { color: #86efac; }
+
+.logo {
+  background: var(--accent);
+  padding: 12px 11px;
+  border-radius: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* ---------- Login ---------- */
+.login-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.login-brand { display: flex; gap: 12px; align-items: center; }
+.login-brand h1 { margin: 0; font-size: 18px; }
+.login-brand p { margin: 2px 0 0; color: var(--text-secondary); font-size: 13px; }
+.form { display: flex; flex-direction: column; gap: 12px; }
+.form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.switch-link {
+  background: none; border: none; color: #93c5fd; cursor: pointer; padding: 0; font-size: 13px;
+  text-align: left;
+}
+
+/* ---------- App layout ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand h1 { font-size: 17px; margin: 0; }
+.brand p { margin: 2px 0 0; color: var(--text-secondary); font-size: 12px; }
+.top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.me-email { color: var(--text-secondary); font-size: 12px; }
+
+.live-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  font-size: 12px; color: var(--text-secondary);
+}
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+.live-badge.on { color: var(--text-primary); }
+.live-badge.on .pulse { background: var(--good); animation: pulse 1.8s ease-out infinite; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: calc(100vh - 66px);
+}
+
+/* People sidebar */
+.people {
+  border-right: 1px solid var(--border);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.people-title {
+  color: var(--text-muted); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; margin: 6px 8px 4px;
+}
+.person {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.person:hover { background: var(--surface); }
+.person.active { background: var(--surface); border-color: var(--border); }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #1e3a8a; color: #bfdbfe; font-weight: 700; font-size: 14px;
+  flex-shrink: 0; position: relative;
+}
+.avatar .status {
+  position: absolute; right: -1px; bottom: -1px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--text-muted); border: 2px solid var(--bg);
+}
+.avatar .status.on { background: var(--good); }
+.person-text { min-width: 0; flex: 1; }
+.person-text strong { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.person-text span { display: block; color: var(--text-secondary); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.people-empty {
+  color: var(--text-muted); font-size: 12px; line-height: 1.5;
+  padding: 8px; border: 1px dashed var(--border); border-radius: 10px; margin: 4px 0;
+}
+.people .btn { margin-top: 8px; }
+
+/* Main */
+main { padding: 20px; min-width: 0; }
+.filters {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.filter-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.segmented {
+  display: inline-flex; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 9px; padding: 3px;
+}
+.segmented button {
+  background: transparent; color: var(--text-secondary);
+  border: none; border-radius: 6px; padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+.segmented button.active { background: var(--border); color: var(--text-primary); font-weight: 600; }
+.updated { color: var(--text-muted); font-size: 12px; }
+#deviceSelect { min-width: 200px; font-weight: 600; }
+
+.notice {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px; text-align: center; line-height: 1.6;
+}
+.notice h2 { margin: 0 0 8px; font-size: 17px; }
+.notice p { margin: 0 auto 14px; max-width: 520px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.tile-label { margin: 0; color: var(--text-secondary); font-size: 12px; }
+.tile-value {
+  margin: 8px 0 4px; font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tile-value.small { font-size: 19px; margin: 12px 0 8px; }
+.tile-note { margin: 0; color: var(--text-muted); font-size: 12px; }
+
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.card.wide { grid-column: 1 / -1; }
+.card h2 { font-size: 14px; margin: 0 0 12px; font-weight: 600; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.card-head h2 { margin: 0; }
+.card-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+#search { width: 220px; }
+
+/* SVG charts */
+.chart { width: 100%; min-height: 220px; }
+.chart svg { display: block; overflow: visible; }
+.chart .gridline { stroke: var(--grid); stroke-width: 1; }
+.chart .axis-text { fill: var(--text-muted); font-size: 11px; font-family: inherit; }
+.chart .bar { fill: var(--series-1); }
+.chart .hit { fill: transparent; outline: none; }
+.chart .bar:has(+ .hit:hover), .chart .bar:has(+ .hit:focus) { fill: var(--series-1-hover); }
+.empty { color: var(--text-muted); text-align: center; padding: 70px 0; margin: 0; font-size: 13px; }
+
+/* Top websites */
+.bars { display: flex; flex-direction: column; gap: 6px; }
+.bar-row {
+  display: grid; grid-template-columns: minmax(90px, 38%) 1fr 40px;
+  align-items: center; gap: 10px; padding: 3px 0; border-radius: 6px; outline: none;
+}
+.bar-row:hover .bar-fill, .bar-row:focus .bar-fill { background: var(--series-1-hover); }
+.bar-name { color: var(--text-secondary); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { height: 14px; }
+.bar-fill { height: 100%; min-width: 3px; background: var(--series-1); border-radius: 0 4px 4px 0; }
+.bar-value { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
+
+/* Devices */
+.device-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;
+}
+.device-list li {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+}
+.device-name { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.device-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.device-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+.device-dot.on { background: var(--good); }
+.device-meta { color: var(--text-secondary); font-size: 12px; }
+.device-count { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 4px; }
+.device-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.device-actions input { flex: 1; min-width: 0; padding: 6px 9px; }
+.btn.small { padding: 5px 10px; font-size: 12px; }
+.btn.danger { background: transparent; color: var(--danger); border-color: #4b2330; }
+.btn.danger.confirm { background: #7f1d1d; color: #fecaca; }
+.avatar.laptop { background: #134e4a; color: #99f6e4; border-radius: 9px; }
+.avatar.laptop svg { width: 18px; height: 18px; }
+.avatar.all { background: #312e81; color: #c7d2fe; }
+
+/* Table */
+.table-wrap { max-height: 480px; overflow: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th {
+  text-align: left; color: var(--text-muted); font-weight: 500; font-size: 12px;
+  padding: 8px 6px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--surface);
+}
+.table td { padding: 9px 6px; border-bottom: 1px solid var(--grid); color: var(--text-secondary); }
+.table td:first-child { color: var(--text-primary); word-break: break-all; }
+.table .right { text-align: right; white-space: nowrap; }
+.table tr.new td { animation: flash 2s ease-out; }
+@keyframes flash { from { background: rgba(57, 135, 229, 0.25); } to { background: transparent; } }
+.table-note { color: var(--text-muted); font-size: 12px; margin: 10px 0 0; }
+
+/* Tooltip */
+.tooltip {
+  position: fixed; z-index: 20; pointer-events: none;
+  background: #0b1220; border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  display: flex; flex-direction: column; gap: 2px; font-size: 12px;
+}
+.tooltip strong { font-size: 14px; }
+.tooltip span { color: var(--text-secondary); }
+
+/* Invite dialog */
+.dialog-backdrop {
+  position: fixed; inset: 0; background: rgba(2, 6, 23, 0.7);
+  display: grid; place-items: center; padding: 16px; z-index: 30;
+}
+.dialog {
+  width: 100%; max-width: 440px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+  display: flex; flex-direction: column; gap: 12px; line-height: 1.5;
+}
+.dialog h2 { margin: 0; font-size: 17px; }
+.dialog p, .dialog ol { margin: 0; color: var(--text-secondary); }
+.dialog ol { padding-left: 18px; }
+.code-box {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--surface-2); border: 1px dashed var(--border); border-radius: 10px; padding: 12px 14px;
+}
+.code {
+  font-family: Consolas, "Courier New", monospace; font-size: 26px; font-weight: 700; letter-spacing: 0.18em;
+}
+.dialog-actions { display: flex; justify-content: flex-end; }
+
+footer { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 22px; }
+
+/* ---------- Shared helpers ---------- */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { min-height: 100vh; min-height: 100dvh; -webkit-tap-highlight-color: transparent; }
+.mobile-only { display: none !important; }
+.switcher { display: none; }
+.visit-cards { display: none; }
+.icon-btn {
+  width: 40px; height: 40px; flex-shrink: 0;
+  display: inline-grid; place-items: center;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-primary); cursor: pointer;
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn:active { transform: scale(0.96); }
+.icon-btn.spinning svg { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn.block { width: 100%; min-height: 48px; font-size: 15px; }
+.btn.danger-solid { background: #7f1d1d; color: #fecaca; }
+.btn:active { transform: scale(0.98); }
+.password-field { position: relative; display: flex; }
+.password-field input { flex: 1; padding-right: 72px; }
+.password-toggle {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  height: 34px; padding: 0 12px; border-radius: 6px; border: none;
+  background: transparent; color: #93c5fd; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.card, .tiles { scroll-margin-top: 84px; }
+.dialog .btn.block + .btn.block { margin-top: -2px; }
+
+/* ---------- Tablet: narrower sidebar ---------- */
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 220px minmax(0, 1fr); }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 768px) {
+  body { font-size: 15px; }
+  input, select, textarea { font-size: 16px !important; } /* stops iOS zooming on focus */
+  .mobile-only { display: revert !important; }
+  .icon-btn.mobile-only { display: inline-grid !important; }
+  .desktop-only { display: none !important; }
+
+  /* Top bar: logo, laptop switcher, refresh, menu */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    flex-wrap: nowrap; gap: 8px;
+    padding: 8px 12px; padding-top: calc(8px + env(safe-area-inset-top));
+    padding-left: calc(12px + env(safe-area-inset-left));
+    padding-right: calc(12px + env(safe-area-inset-right));
+    background: rgba(23, 32, 51, 0.94);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+  .brand { flex-shrink: 0; }
+  .brand-text { display: none; }
+  .logo { padding: 10px 7px; font-size: 12px; border-radius: 10px; }
+  .switcher {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; min-width: 0; min-height: 48px; padding: 6px 12px;
+    border-radius: 12px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-primary);
+    text-align: left; cursor: pointer;
+  }
+  .switcher:active { background: var(--border); }
+  .switcher .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+  .switcher .dot.on { background: var(--good); }
+  .switcher-text { min-width: 0; flex: 1; }
+  .switcher-text strong { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .switcher-text span { display: block; font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .switcher svg { width: 18px; height: 18px; color: var(--text-secondary); flex-shrink: 0; }
+  .top-actions { flex-wrap: nowrap; gap: 6px; }
+  .live-badge { display: none; }
+  .icon-btn { width: 44px; height: 44px; }
+
+  /* People / laptops become a bottom sheet */
+  .layout { display: block; min-height: 0; }
+  .people {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    max-height: 80dvh; overflow-y: auto; overscroll-behavior: contain;
+    background: var(--surface-2); border: none; border-top: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+    padding: 6px 16px calc(16px + env(safe-area-inset-bottom));
+    transform: translateY(105%); visibility: hidden;
+    transition: transform 0.25s ease, visibility 0.25s;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4);
+  }
+  body.people-open .people { transform: none; visibility: visible; }
+  body.people-open, body.sheet-open { overflow: hidden; }
+  .sheet-backdrop { position: fixed; inset: 0; z-index: 35; background: rgba(2, 6, 23, 0.6); }
+  .sheet-handle { display: block !important; width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 6px auto 10px; }
+  .sheet-head { display: flex !important; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .sheet-head h2 { font-size: 17px; margin: 0; }
+  .people-title { margin: 12px 4px 4px; }
+  .person { min-height: 60px; padding: 10px 12px; }
+  .person-text strong { font-size: 15px; }
+  .person-text span { font-size: 13px; }
+  .people .btn { min-height: 48px; font-size: 15px; margin-top: 12px; }
+
+  /* Content */
+  main {
+    padding: 12px;
+    padding-left: calc(12px + env(safe-area-inset-left));
+    padding-right: calc(12px + env(safe-area-inset-right));
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .filters { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 12px; }
+  .filter-group { flex-direction: column; align-items: stretch; gap: 8px; }
+  #deviceSelect { width: 100%; min-height: 46px; }
+  .segmented { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .segmented button { min-height: 40px; font-size: 14px; padding: 6px 2px; }
+  .updated { text-align: center; }
+
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .tile { padding: 12px; border-radius: 14px; }
+  .tile-value { font-size: 26px; }
+  .tile-value.small { font-size: 16px; white-space: normal; overflow-wrap: anywhere; line-height: 1.3; margin: 10px 0 6px; }
+
+  .grid { grid-template-columns: 1fr; gap: 10px; }
+  .card { padding: 14px; border-radius: 14px; }
+  .card h2 { font-size: 15px; }
+  .chart { min-height: 180px; }
+  .empty { padding: 48px 0; }
+  .bar-row { grid-template-columns: minmax(0, 44%) 1fr 34px; min-height: 34px; }
+  .bar-name { font-size: 14px; }
+  .device-list { grid-template-columns: 1fr; }
+  .device-actions .btn { min-height: 40px; flex: 1; }
+  .device-actions input { min-height: 40px; }
+
+  .card-head { flex-direction: column; align-items: stretch; gap: 10px; }
+  .card-tools { flex-direction: column; }
+  #search { width: 100%; min-height: 46px; }
+  #exportBtn { display: none; } /* in the account menu instead */
+  .table-wrap { display: none; }
+  .visit-cards { display: block; list-style: none; margin: 0; padding: 0; }
+  .visit-cards li {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px;
+    padding: 12px 2px; border-bottom: 1px solid var(--grid);
+  }
+  .visit-cards li.new { animation: flash 2s ease-out; }
+  .vc-domain { font-weight: 600; font-size: 15px; overflow-wrap: anywhere; }
+  .vc-when { color: var(--text-secondary); font-size: 13px; text-align: right; white-space: nowrap; }
+  .vc-meta { grid-column: 1 / -1; color: var(--text-muted); font-size: 12px; }
+
+  .notice { padding: 20px 16px; }
+  footer { padding: 0 8px; }
+
+  /* Section tabs at the bottom, within thumb reach */
+  .bottom-nav {
+    display: grid !important; grid-template-columns: repeat(4, 1fr);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: rgba(23, 32, 51, 0.96);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav button {
+    min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    background: none; border: none; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer;
+  }
+  .bottom-nav button svg { width: 22px; height: 22px; }
+  .bottom-nav button.active { color: #93c5fd; }
+
+  /* Dialogs slide up from the bottom */
+  .dialog-backdrop { place-items: end stretch; padding: 0; }
+  .dialog {
+    max-width: none; border-radius: 18px 18px 0 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    animation: sheet-up 0.22s ease-out;
+  }
+  @keyframes sheet-up { from { transform: translateY(40px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+  .dialog .btn { min-height: 48px; font-size: 15px; }
+  .dialog-actions .btn { width: 100%; }
+  .code { font-size: 24px; }
+
+  /* Login */
+  .login-wrap { grid-template-columns: minmax(0, 1fr); place-items: start center; padding-top: max(8vh, calc(24px + env(safe-area-inset-top))); }
+  .login-brand h1 { font-size: 17px; }
+  .login-brand p { font-size: 13px; }
+  .login-card { padding: 20px; border-radius: 16px; }
+  .form input { min-height: 48px; }
+  #loginBtn { min-height: 50px; font-size: 16px; }
+  .switch-link { min-height: 44px; }
+}
+
+@media (max-width: 360px) {
+  .segmented button { font-size: 13px; }
+  .tile-value { font-size: 22px; }
+  .logo { display: none; }
+}
+
+@media (hover: none) {
+  .person:hover { background: transparent; }
+  .person.active:hover { background: var(--surface); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= Login ================= -->
+<div id="loginView" class="login-wrap" hidden>
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo">BAM</div>
+      <div>
+        <h1>Browser Activity Monitor</h1>
+        <p>Sign in to see activity shared with you</p>
+      </div>
+    </div>
+
+    <form id="loginForm" class="form">
+      <label id="nameField" hidden>
+        Your name <span class="muted">(shown to people who share with you)</span>
+        <input id="nameInput" type="text" maxlength="60" autocomplete="name">
+      </label>
+      <label>
+        Email
+        <input id="emailInput" type="email" required autocomplete="email">
+      </label>
+      <label>
+        Password
+        <span class="password-field">
+          <input id="passwordInput" type="password" required minlength="8" autocomplete="current-password">
+          <button id="togglePassword" class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+        </span>
+      </label>
+      <button id="loginBtn" class="btn primary block" type="submit">Sign in</button>
+    </form>
+    <p id="loginMessage" class="message" hidden></p>
+    <button id="modeSwitch" class="switch-link" type="button">No account yet? Create one</button>
+  </div>
+</div>
+
+<!-- ================= App ================= -->
+<div id="appView" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">BAM</div>
+      <div class="brand-text">
+        <h1 id="viewTitle">Browser Activity Monitor</h1>
+        <p id="viewSubtitle">Shared activity</p>
+      </div>
+    </div>
+    <button id="switcherBtn" class="switcher" type="button" aria-haspopup="dialog" aria-controls="peoplePanel" aria-expanded="false">
+      <span id="switcherDot" class="dot" aria-hidden="true"></span>
+      <span class="switcher-text">
+        <strong id="switcherTitle">Loading…</strong>
+        <span id="switcherSub">Tap to choose a laptop</span>
+      </span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="top-actions">
+      <div id="liveBadge" class="live-badge"><span class="pulse"></span><span id="liveText">Connecting</span></div>
+      <button id="refreshBtn" class="icon-btn" type="button" aria-label="Refresh now" title="Refresh now">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+      <span id="meEmail" class="me-email desktop-only"></span>
+      <button id="signOutBtn" class="btn ghost desktop-only" type="button">Sign out</button>
+      <button id="menuBtn" class="icon-btn mobile-only" type="button" aria-label="Account menu" aria-haspopup="dialog" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+    <aside id="peoplePanel" class="people" aria-label="Laptops and people">
+      <div class="sheet-handle mobile-only" aria-hidden="true"></div>
+      <div class="sheet-head mobile-only">
+        <h2>Choose a laptop</h2>
+        <button id="closePeople" class="icon-btn" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <p class="people-title">My laptops</p>
+      <div id="meList"></div>
+      <p class="people-title">Shared with me</p>
+      <div id="sharedList"></div>
+      <button id="inviteBtn" class="btn ghost" type="button">+ Invite someone</button>
+    </aside>
+
+    <main>
+      <p id="appMessage" class="message" hidden></p>
+
+      <section id="noOneView" class="notice" hidden>
+        <h2>Nobody is sharing with you yet</h2>
+        <p>
+          Click <strong>Invite someone</strong> to get a code. The other person enters it on the
+          <strong>Account &amp; sharing</strong> page of their extension and clicks <strong>Authorize</strong>.
+          They will then appear on the left.
+        </p>
+        <button id="inviteBtn2" class="btn primary" type="button">Invite someone</button>
+      </section>
+
+      <div id="dashView">
+        <nav class="filters" aria-label="Filters">
+          <div class="filter-group">
+            <select id="deviceSelect" aria-label="Device"></select>
+            <div class="segmented" role="group" aria-label="Time range">
+              <button data-range="today" type="button">Today</button>
+              <button data-range="7d" type="button">7 days</button>
+              <button data-range="30d" type="button">30 days</button>
+              <button data-range="all" type="button">All time</button>
+            </div>
+          </div>
+          <span id="updated" class="updated"></span>
+        </nav>
+
+        <section class="tiles" id="secOverview">
+          <div class="tile">
+            <p class="tile-label">Visits</p>
+            <p id="statVisits" class="tile-value">0</p>
+            <p id="statVisitsNote" class="tile-note"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Unique websites</p>
+            <p id="statUnique" class="tile-value">0</p>
+            <p class="tile-note">distinct domains</p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Most visited</p>
+            <p id="statTop" class="tile-value small">–</p>
+            <p id="statTopNote" class="tile-note"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Busiest hour</p>
+            <p id="statHour" class="tile-value small">–</p>
+            <p id="statHourNote" class="tile-note"></p>
+          </div>
+        </section>
+
+        <section class="grid">
+          <article class="card wide">
+            <h2 id="trendTitle">Visits per day</h2>
+            <div id="trendChart" class="chart"></div>
+          </article>
+
+          <article class="card" id="topCard">
+            <h2>Top websites</h2>
+            <div id="topList" class="bars"></div>
+          </article>
+
+          <article class="card" id="hourCard">
+            <h2>Visits by hour of day</h2>
+            <div id="hourChart" class="chart"></div>
+          </article>
+
+          <article class="card wide" id="devicesCard">
+            <h2>Devices</h2>
+            <ul id="deviceList" class="device-list"></ul>
+          </article>
+
+          <article class="card wide" id="visitsCard">
+            <div class="card-head">
+              <h2>Recent visits</h2>
+              <div class="card-tools">
+                <input id="search" type="search" placeholder="Filter by domain or device" aria-label="Filter visits">
+                <button id="exportBtn" class="btn ghost" type="button">Export CSV</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr><th>Website</th><th>Device</th><th>Time</th><th class="right">When</th></tr>
+                </thead>
+                <tbody id="visitRows"></tbody>
+              </table>
+            </div>
+            <ul id="visitCards" class="visit-cards" aria-label="Recent visits"></ul>
+            <p id="tableNote" class="table-note"></p>
+          </article>
+        </section>
+      </div>
+
+      <footer>
+        You only see people who authorized you, and only visits made after they did.
+        Only website domains and times are stored, never full addresses or page content.
+      </footer>
+    </main>
+  </div>
+
+  <nav class="bottom-nav mobile-only" aria-label="Sections">
+    <button type="button" data-target="secOverview" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      Overview
+    </button>
+    <button type="button" data-target="topCard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+      Websites
+    </button>
+    <button type="button" data-target="devicesCard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg>
+      Laptops
+    </button>
+    <button type="button" data-target="visitsCard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      Visits
+    </button>
+  </nav>
+</div>
+
+<!-- Account menu (phones) -->
+<div id="menuSheet" class="dialog-backdrop" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <h2 id="menuTitle">Account</h2>
+    <p id="menuEmail" class="muted"></p>
+    <button id="menuInvite" class="btn ghost block" type="button">+ Invite someone</button>
+    <button id="menuExport" class="btn ghost block" type="button">Export visits as CSV</button>
+    <button id="menuSignOut" class="btn danger-solid block" type="button">Sign out</button>
+    <button id="menuClose" class="btn primary block" type="button">Close</button>
+  </div>
+</div>
+
+<!-- Invite dialog -->
+<div id="inviteDialog" class="dialog-backdrop" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="inviteTitle">
+    <h2 id="inviteTitle">Invite someone to share with you</h2>
+    <div class="code-box">
+      <span id="inviteCode" class="code">…</span>
+      <button id="copyBtn" class="btn ghost" type="button">Copy</button>
+    </div>
+    <p id="inviteExpiry" class="muted"></p>
+    <ol>
+      <li>Send this code to the person.</li>
+      <li>They open the extension, click <strong>Account &amp; sharing</strong>, enter the code and click <strong>Authorize</strong>.</li>
+      <li>They also turn on <strong>Cloud sync</strong>. Their name then appears on the left here.</li>
+    </ol>
+    <div class="dialog-actions">
+      <button id="closeInvite" class="btn primary" type="button">Done</button>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip" class="tooltip" role="status" hidden>
+  <strong id="tipValue"></strong>
+  <span id="tipLabel"></span>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   Configuration (same values as the extension's config.js).
+   The publishable/anon key is meant for browser code; the
+   database security rules decide what each person can see.
+   ========================================================= */
+const SUPABASE_URL = "https://wigafihwkyzqwvsyefzs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_SgBMXw8CgGXWKM4EbT_Xrw_yXTAxEfC";
+
+const POLL_MS = 15000;
+const PAGE = 1000;
+const MAX_ROWS = 20000;
+const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
+const MAX_TABLE_ROWS = 150;
+const SVG_NS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
+const phone = window.matchMedia("(max-width: 768px)");
+
+/* ---------- Small storage wrapper (works even if storage is blocked) ---------- */
+const memoryStore = {};
+const store = {
+  get(key) {
+    try { return JSON.parse(localStorage.getItem(key)); } catch { return memoryStore[key] ?? null; }
+  },
+  set(key, value) {
+    memoryStore[key] = value;
+    try {
+      if (value === null || value === undefined) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify(value));
+    } catch { /* memory only */ }
+  }
+};
+
+/* =========================================================
+   Supabase client (fetch only)
+   ========================================================= */
+class ApiError extends Error {
+  constructor(message, status, code) { super(message); this.status = status; this.code = code; }
+}
+
+async function call(url, options) {
+  let response;
+  try {
+    response = await fetch(url, options);
+  } catch {
+    throw new ApiError("Cannot reach Supabase. Check your internet connection.", 0, "network");
+  }
+  const text = await response.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!response.ok) {
+    const message = (data && (data.msg || data.message || data.error_description || data.error)) ||
+      `Request failed (${response.status})`;
+    throw new ApiError(message, response.status, data && (data.code || data.error_code));
+  }
+  return data;
+}
+
+const BASE = SUPABASE_URL.replace(/\/+$/, "");
+const SESSION_KEY = "bam-viewer-session";
+
+function saveSession(data) {
+  const session = {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_at: data.expires_at || Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      display_name: data.user.user_metadata?.display_name || ""
+    }
+  };
+  store.set(SESSION_KEY, session);
+  return session;
+}
+
+let refreshing = null;
+function refreshSession(session) {
+  if (!refreshing) {
+    refreshing = call(`${BASE}/auth/v1/token?grant_type=refresh_token`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    })
+      .then(saveSession)
+      .catch((error) => {
+        if (error.status >= 400 && error.status < 500) {
+          store.set(SESSION_KEY, null);
+          throw new ApiError("Your session expired. Please sign in again.", 401, "session_expired");
+        }
+        throw error;
+      })
+      .finally(() => { refreshing = null; });
+  }
+  return refreshing;
+}
+
+async function accessToken(force = false) {
+  let session = store.get(SESSION_KEY);
+  if (!session) throw new ApiError("Not signed in.", 401, "not_signed_in");
+  if (force || session.expires_at - 60 < Date.now() / 1000) session = await refreshSession(session);
+  return session.access_token;
+}
+
+async function signIn(email, password) {
+  const data = await call(`${BASE}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  return saveSession(data);
+}
+
+async function signUp(email, password, displayName) {
+  const data = await call(`${BASE}/auth/v1/signup`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, data: { display_name: displayName } })
+  });
+  if (data && data.access_token) return { session: saveSession(data) };
+  return { needsConfirmation: true };
+}
+
+function signOut() {
+  const session = store.get(SESSION_KEY);
+  if (session) {
+    fetch(`${BASE}/auth/v1/logout`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` }
+    }).catch(() => {});
+  }
+  store.set(SESSION_KEY, null);
+}
+
+async function rest(path, { method = "GET", body } = {}) {
+  const send = async (token) => call(`${BASE}/rest/v1/${path}`, {
+    method,
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  try {
+    return await send(await accessToken());
+  } catch (error) {
+    if (error.status === 401 && error.code !== "session_expired" && error.code !== "not_signed_in") {
+      return send(await accessToken(true));
+    }
+    throw error;
+  }
+}
+
+const rpc = (fn, args = {}) => rest(`rpc/${fn}`, { method: "POST", body: args });
+
+/* =========================================================
+   App state
+   ========================================================= */
+const state = {
+  me: null,
+  people: [],          // [{ id, name, email }] people sharing with me
+  devices: [],         // [{ id, name, ownerId, lastSeen }]
+  rows: [],            // [{ id, domain, timestamp, created, deviceId, ownerId }]
+  ids: new Set(),
+  maxCreated: 0,
+  loadedRange: null,
+  person: store.get("bam-viewer-person"),
+  device: store.get("bam-viewer-device") || "all",
+  editingDevice: null,   // id of the laptop being renamed
+  editDraft: "",
+  confirmRemove: null,   // id of the laptop waiting for a second "Remove" click
+  range: store.get("bam-viewer-range") || "7d",
+  search: "",
+  lastUpdated: null,
+  error: null,
+  loading: false,
+  newestSeen: 0
+};
+
+/* ---------- Helpers ---------- */
+function startOfDay(time) { const d = new Date(time); d.setHours(0, 0, 0, 0); return d; }
+function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+function countBy(list, keyFn) {
+  const map = new Map();
+  list.forEach((item) => { const k = keyFn(item); map.set(k, (map.get(k) || 0) + 1); });
+  return map;
+}
+const fmtNum = (n) => n.toLocaleString();
+const plural = (n, word) => `${fmtNum(n)} ${word}${n === 1 ? "" : "s"}`;
+function hourLabel(h) { const hr = h % 12 === 0 ? 12 : h % 12; return `${hr} ${h < 12 ? "AM" : "PM"}`; }
+function timeAgo(ts) {
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 45) return "just now";
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} hr ago`;
+  const d = Math.round(h / 24);
+  return `${d} day${d === 1 ? "" : "s"} ago`;
+}
+function initials(name) {
+  return (name || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
+}
+
+function personName(id) {
+  if (id === state.me?.id) return "You";
+  return state.people.find((p) => p.id === id)?.name || "Unknown";
+}
+function deviceName(id) {
+  return state.devices.find((d) => d.id === id)?.name || "Unknown device";
+}
+function devicesOf(personId) {
+  return state.devices.filter((d) => d.ownerId === personId);
+}
+function isActive(device) {
+  return Date.now() - device.lastSeen < ACTIVE_WINDOW_MS;
+}
+
+function selectedRecords() {
+  return state.rows.filter((r) =>
+    r.ownerId === state.person && (state.device === "all" || r.deviceId === state.device));
+}
+
+function rangeStart() {
+  const today = startOfDay(Date.now());
+  if (state.range === "today") return today;
+  if (state.range === "7d") return addDays(today, -6);
+  if (state.range === "30d") return addDays(today, -29);
+  const records = selectedRecords();
+  const oldest = records[records.length - 1];
+  return oldest ? startOfDay(oldest.timestamp) : today;
+}
+
+function inRange() {
+  const start = rangeStart().getTime();
+  return selectedRecords().filter((a) => a.timestamp >= start);
+}
+
+/* =========================================================
+   Data loading
+   ========================================================= */
+const SELECT = "select=id,domain,visited_at,created_at,device_id,owner_id";
+function mapRow(r) {
+  return {
+    id: r.id, domain: r.domain,
+    timestamp: Date.parse(r.visited_at), created: Date.parse(r.created_at),
+    deviceId: r.device_id, ownerId: r.owner_id
+  };
+}
+
+async function loadPeopleAndDevices() {
+  const [grants, devices] = await Promise.all([
+    rpc("my_grants"),
+    rest("devices?select=id,name,owner_id,last_seen_at&order=created_at")
+  ]);
+  const incoming = grants.filter((g) => g.direction === "incoming");
+  if (incoming.some((g) => !g.other_id)) {
+    throw new ApiError("Run the updated supabase/schema.sql in the Supabase SQL Editor, then reload.", 0, "schema");
+  }
+  state.people = incoming.map((g) => ({ id: g.other_id, name: g.other_name, email: g.other_email }));
+  state.devices = devices.map((d) => ({
+    id: d.id, name: d.name, ownerId: d.owner_id, lastSeen: Date.parse(d.last_seen_at)
+  }));
+}
+
+async function loadRows() {
+  const start = state.range === "all" ? null : rangeStart().toISOString();
+  const filter = start ? `&visited_at=gte.${encodeURIComponent(start)}` : "";
+  const rows = [];
+  for (let offset = 0; offset < MAX_ROWS; offset += PAGE) {
+    const page = await rest(`activity?${SELECT}${filter}&order=visited_at.desc&limit=${PAGE}&offset=${offset}`);
+    rows.push(...page.map(mapRow));
+    if (page.length < PAGE) break;
+  }
+  state.rows = rows;
+  state.ids = new Set(rows.map((r) => r.id));
+  state.maxCreated = rows.reduce((m, r) => Math.max(m, r.created), 0);
+  state.loadedRange = state.range;
+}
+
+// New uploads since the last check (by upload time, so a laptop that was
+// offline and uploads older visits later still shows up).
+async function pollRows() {
+  const since = new Date(state.maxCreated || 0).toISOString();
+  const page = await rest(`activity?${SELECT}&created_at=gte.${encodeURIComponent(since)}&order=created_at.asc&limit=${PAGE}`);
+  const start = state.range === "all" ? 0 : rangeStart().getTime();
+  const fresh = page.map(mapRow).filter((r) => !state.ids.has(r.id));
+  fresh.forEach((r) => { state.ids.add(r.id); state.maxCreated = Math.max(state.maxCreated, r.created); });
+  const keep = fresh.filter((r) => r.timestamp >= start);
+  if (keep.length) state.rows = [...keep, ...state.rows].sort((a, b) => b.timestamp - a.timestamp);
+}
+
+function pickValidSelection() {
+  const valid = [state.me.id, ...state.people.map((p) => p.id)];
+  if (!valid.includes(state.person)) {
+    // Admin setup: start with your own laptops if you have any.
+    state.person = devicesOf(state.me.id).length ? state.me.id : (state.people[0]?.id || state.me.id);
+    state.device = "all";
+  }
+  if (state.device !== "all" && !devicesOf(state.person).some((d) => d.id === state.device)) {
+    state.device = "all";
+  }
+}
+
+let busy = false;
+async function refresh(full = false) {
+  if (busy || !state.me) return;
+  busy = true;
+  if (full) { state.loading = true; renderAll(); }
+  try {
+    await loadPeopleAndDevices();
+    if (full || state.loadedRange !== state.range) await loadRows();
+    else await pollRows();
+    // Drop rows from anyone who revoked access.
+    const allowed = new Set([state.me.id, ...state.people.map((p) => p.id)]);
+    state.rows = state.rows.filter((r) => allowed.has(r.ownerId));
+    pickValidSelection();
+    state.error = null;
+    state.lastUpdated = Date.now();
+  } catch (error) {
+    state.error = error.message;
+    if (error.code === "session_expired" || error.code === "not_signed_in") {
+      showLogin("Your session expired. Please sign in again.");
+      busy = false;
+      return;
+    }
+  } finally {
+    state.loading = false;
+    busy = false;
+  }
+  renderAll();
+}
+
+let pollTimer = null;
+function startPolling() {
+  clearInterval(pollTimer);
+  pollTimer = setInterval(() => { if (!document.hidden) refresh(false); }, POLL_MS);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && state.me) refresh(false);
+});
+
+/* =========================================================
+   Rendering
+   ========================================================= */
+const tooltip = $("tooltip");
+function showTip(value, label, x, y) {
+  $("tipValue").textContent = value;
+  $("tipLabel").textContent = label;
+  tooltip.hidden = false;
+  const r = tooltip.getBoundingClientRect();
+  let left = x + 14, top = y - r.height - 10;
+  if (left + r.width > window.innerWidth - 8) left = x - r.width - 14;
+  if (top < 8) top = y + 16;
+  tooltip.style.left = `${Math.max(8, left)}px`;
+  tooltip.style.top = `${top}px`;
+}
+function hideTip() { tooltip.hidden = true; }
+function attachTip(el, value, label) {
+  el.addEventListener("pointermove", (e) => showTip(value, label, e.clientX, e.clientY));
+  // On touch screens a tap shows the value and it stays until the next tap or scroll.
+  el.addEventListener("pointerdown", (e) => showTip(value, label, e.clientX, e.clientY));
+  el.addEventListener("pointerleave", (e) => { if (e.pointerType !== "touch") hideTip(); });
+  el.addEventListener("focus", () => { const r = el.getBoundingClientRect(); showTip(value, label, r.left + r.width / 2, r.top); });
+  el.addEventListener("blur", hideTip);
+}
+
+function svgEl(tag, attrs = {}) {
+  const el = document.createElementNS(SVG_NS, tag);
+  Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+function niceScale(max) {
+  if (max <= 0) return { max: 4, step: 1 };
+  const raw = max / 4, pow = 10 ** Math.floor(Math.log10(raw)), n = raw / pow;
+  const step = Math.max(1, (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * pow);
+  return { max: Math.ceil(max / step) * step, step };
+}
+function columnPath(x, y, w, h, r = 4) {
+  r = Math.min(r, w / 2, h);
+  return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+}
+function emptyText() { return state.loading ? "Loading…" : "No visits in this range yet."; }
+function emptyState(container, text) {
+  const p = document.createElement("p");
+  p.className = "empty";
+  p.textContent = text;
+  container.replaceChildren(p);
+}
+
+function columnChart(container, buckets, height = phone.matches ? 180 : 220) {
+  if (buckets.every((b) => b.value === 0)) { emptyState(container, emptyText()); return; }
+  const width = Math.max(container.clientWidth, 260);
+  const m = { top: 10, right: 6, bottom: 26, left: 34 };
+  const plotW = width - m.left - m.right, plotH = height - m.top - m.bottom;
+  const { max, step } = niceScale(Math.max(...buckets.map((b) => b.value)));
+  const yOf = (v) => m.top + plotH - (v / max) * plotH;
+  const svg = svgEl("svg", { width, height, role: "img" });
+
+  for (let v = 0; v <= max; v += step) {
+    const y = yOf(v);
+    svg.append(svgEl("line", { class: "gridline", x1: m.left, x2: width - m.right, y1: y, y2: y }));
+    const t = svgEl("text", { class: "axis-text", x: m.left - 8, y: y + 4, "text-anchor": "end" });
+    t.textContent = fmtNum(v);
+    svg.append(t);
+  }
+
+  const slot = plotW / buckets.length, gap = Math.max(2, slot * 0.28), barW = Math.max(1, slot - gap);
+  const labelEvery = Math.ceil(buckets.length / Math.max(1, Math.floor(plotW / 52)));
+  buckets.forEach((b, i) => {
+    const x = m.left + i * slot + gap / 2;
+    const hit = svgEl("rect", {
+      class: "hit", x: m.left + i * slot, y: m.top, width: slot, height: plotH, tabindex: 0,
+      "aria-label": `${b.tipLabel}: ${plural(b.value, "visit")}`
+    });
+    attachTip(hit, plural(b.value, "visit"), b.tipLabel);
+    const h = (b.value / max) * plotH;
+    const bar = svgEl("path", { class: "bar", d: h > 0 ? columnPath(x, yOf(b.value), barW, h) : "" });
+    svg.append(bar, hit);
+    if (i % labelEvery === 0 && b.tick) {
+      const t = svgEl("text", { class: "axis-text", x: x + barW / 2, y: height - 8, "text-anchor": "middle" });
+      t.textContent = b.tick;
+      svg.append(t);
+    }
+  });
+  container.replaceChildren(svg);
+}
+
+function renderTrend(list) {
+  const buckets = [];
+  if (state.range === "today") {
+    $("trendTitle").textContent = "Visits per hour today";
+    const counts = countBy(list, (a) => new Date(a.timestamp).getHours());
+    for (let h = 0; h < 24; h++) {
+      buckets.push({ tick: hourLabel(h), value: counts.get(h) || 0, tipLabel: `${hourLabel(h)} to ${hourLabel((h + 1) % 24)}` });
+    }
+  } else {
+    $("trendTitle").textContent = "Visits per day";
+    const counts = countBy(list, (a) => startOfDay(a.timestamp).getTime());
+    const today = startOfDay(Date.now());
+    for (let d = rangeStart(); d <= today; d = addDays(d, 1)) {
+      buckets.push({
+        tick: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }),
+        value: counts.get(d.getTime()) || 0,
+        tipLabel: d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })
+      });
+    }
+  }
+  columnChart($("trendChart"), buckets);
+}
+
+function renderHours(list) {
+  const hide = state.range === "today";
+  $("hourCard").hidden = hide;
+  $("topCard").classList.toggle("wide", hide);
+  if (hide) return;
+  const counts = countBy(list, (a) => new Date(a.timestamp).getHours());
+  const buckets = [];
+  for (let h = 0; h < 24; h++) {
+    buckets.push({ tick: h % 6 === 0 ? hourLabel(h) : "", value: counts.get(h) || 0, tipLabel: `${hourLabel(h)} to ${hourLabel((h + 1) % 24)}` });
+  }
+  columnChart($("hourChart"), buckets);
+}
+
+function renderTopSites(list) {
+  const container = $("topList");
+  const counts = [...countBy(list, (a) => a.domain).entries()].sort((a, b) => b[1] - a[1]);
+  if (!counts.length) { emptyState(container, state.loading ? "Loading…" : "No websites in this range yet."); return; }
+  const top = counts.slice(0, 10), max = top[0][1], total = list.length;
+  const rows = top.map(([domain, count]) => {
+    const row = document.createElement("div");
+    row.className = "bar-row";
+    row.tabIndex = 0;
+    const name = document.createElement("span");
+    name.className = "bar-name";
+    name.textContent = domain;
+    name.title = domain;
+    const track = document.createElement("div");
+    track.className = "bar-track";
+    const fill = document.createElement("div");
+    fill.className = "bar-fill";
+    fill.style.width = `${(count / max) * 100}%`;
+    track.append(fill);
+    const value = document.createElement("span");
+    value.className = "bar-value";
+    value.textContent = fmtNum(count);
+    row.append(name, track, value);
+    attachTip(row, plural(count, "visit"), `${domain} · ${Math.round((count / total) * 100)}% of visits`);
+    return row;
+  });
+  if (counts.length > 10) {
+    const others = counts.slice(10).reduce((s, [, c]) => s + c, 0);
+    const note = document.createElement("p");
+    note.className = "table-note";
+    note.textContent = `+ ${plural(counts.length - 10, "other website")} (${plural(others, "visit")})`;
+    rows.push(note);
+  }
+  container.replaceChildren(...rows);
+}
+
+function renderTiles(list) {
+  const rangeNames = { today: "today", "7d": "in the last 7 days", "30d": "in the last 30 days", all: "all time" };
+  $("statVisits").textContent = fmtNum(list.length);
+  $("statVisitsNote").textContent = rangeNames[state.range];
+  const domains = countBy(list, (a) => a.domain);
+  $("statUnique").textContent = fmtNum(domains.size);
+  const top = [...domains.entries()].sort((a, b) => b[1] - a[1])[0];
+  $("statTop").textContent = top ? top[0] : "–";
+  $("statTop").title = top ? top[0] : "";
+  $("statTopNote").textContent = top ? plural(top[1], "visit") : "";
+  const hour = [...countBy(list, (a) => new Date(a.timestamp).getHours()).entries()].sort((a, b) => b[1] - a[1])[0];
+  $("statHour").textContent = hour ? `${hourLabel(hour[0])} to ${hourLabel((hour[0] + 1) % 24)}` : "–";
+  $("statHourNote").textContent = hour ? plural(hour[1], "visit") : "";
+}
+
+function renderDevices(list) {
+  // Don't redraw (and lose typing) while a laptop is being renamed.
+  const active = document.activeElement;
+  if (state.editingDevice && active?.tagName === "INPUT" && active.closest(".device-actions")) return;
+  let devices = devicesOf(state.person);
+  if (state.device !== "all") devices = devices.filter((d) => d.id === state.device);
+  const counts = countBy(list, (a) => a.deviceId);
+  if (!devices.length) {
+    const li = document.createElement("li");
+    li.className = "device-meta";
+    li.textContent = "No laptops registered yet. Install the extension, sign in and switch on Cloud sync.";
+    $("deviceList").replaceChildren(li);
+    return;
+  }
+  const mine = state.person === state.me.id;
+  $("deviceList").replaceChildren(...devices
+    .slice().sort((a, b) => b.lastSeen - a.lastSeen)
+    .map((d) => {
+      const li = document.createElement("li");
+      const name = document.createElement("div");
+      name.className = "device-name";
+      const dot = document.createElement("i");
+      dot.className = "device-dot" + (isActive(d) ? " on" : "");
+      const label = document.createElement("span");
+      label.textContent = d.name;
+      label.title = d.name;
+      name.append(dot, label);
+      const seen = document.createElement("div");
+      seen.className = "device-meta";
+      seen.textContent = isActive(d) ? "Active now" : `Last active ${timeAgo(d.lastSeen)}`;
+      const count = document.createElement("div");
+      count.className = "device-count";
+      count.textContent = plural(counts.get(d.id) || 0, "visit");
+      li.append(name, seen, count);
+      if (mine) li.append(deviceActions(d));
+      return li;
+    }));
+}
+
+// Rename / remove controls for your own laptops.
+function deviceActions(d) {
+  const row = document.createElement("div");
+  row.className = "device-actions";
+
+  if (state.editingDevice === d.id) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = 60;
+    input.value = state.editDraft;
+    input.setAttribute("aria-label", "New name");
+    input.addEventListener("input", () => { state.editDraft = input.value; });
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "btn primary small";
+    save.textContent = "Save";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "btn ghost small";
+    cancel.textContent = "Cancel";
+
+    const doSave = async () => {
+      const name = state.editDraft.trim().slice(0, 60);
+      if (!name) return;
+      save.disabled = true;
+      try {
+        await rest(`devices?id=eq.${d.id}`, { method: "PATCH", body: { name } });
+        d.name = name;
+        state.editingDevice = null;
+      } catch (error) {
+        state.error = "Could not rename: " + error.message;
+      }
+      renderAll();
+    };
+    save.addEventListener("click", doSave);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doSave();
+      if (e.key === "Escape") cancel.click();
+    });
+    cancel.addEventListener("click", () => { state.editingDevice = null; renderAll(); });
+    row.append(input, save, cancel);
+    setTimeout(() => { if (document.activeElement !== input) input.focus(); }, 0);
+    return row;
+  }
+
+  const rename = document.createElement("button");
+  rename.type = "button";
+  rename.className = "btn ghost small";
+  rename.textContent = "Rename";
+  rename.addEventListener("click", () => {
+    state.editingDevice = d.id;
+    state.editDraft = d.name;
+    state.confirmRemove = null;
+    renderAll();
+  });
+
+  const remove = document.createElement("button");
+  remove.type = "button";
+  const confirming = state.confirmRemove === d.id;
+  remove.className = "btn danger small" + (confirming ? " confirm" : "");
+  remove.textContent = confirming ? "Click again: delete laptop and its history" : "Remove";
+  remove.addEventListener("click", async () => {
+    if (!confirming) {
+      state.confirmRemove = d.id;
+      renderAll();
+      setTimeout(() => {
+        if (state.confirmRemove === d.id) { state.confirmRemove = null; renderAll(); }
+      }, 5000);
+      return;
+    }
+    remove.disabled = true;
+    try {
+      await rest(`devices?id=eq.${d.id}`, { method: "DELETE" });
+      state.confirmRemove = null;
+      if (state.device === d.id) { state.device = "all"; store.set("bam-viewer-device", "all"); }
+      await refresh(true);
+    } catch (error) {
+      state.error = "Could not remove: " + error.message;
+      renderAll();
+    }
+  });
+
+  row.append(rename, remove);
+  return row;
+}
+
+function renderTable(list) {
+  const q = state.search.trim().toLowerCase();
+  const rows = q ? list.filter((a) => a.domain.includes(q) || deviceName(a.deviceId).toLowerCase().includes(q)) : list;
+  if (phone.matches) {
+    renderVisitCards(rows.slice(0, 100));
+    $("visitRows").replaceChildren();
+  } else {
+  $("visitCards").replaceChildren();
+  $("visitRows").replaceChildren(...rows.slice(0, MAX_TABLE_ROWS).map((item) => {
+    const tr = document.createElement("tr");
+    if (state.newestSeen !== 0 && item.timestamp > state.newestSeen) tr.className = "new";
+    const cells = [item.domain, deviceName(item.deviceId), new Date(item.timestamp).toLocaleString(), timeAgo(item.timestamp)];
+    cells.forEach((text, i) => {
+      const td = document.createElement("td");
+      td.textContent = text;
+      if (i === 3) td.className = "right";
+      tr.append(td);
+    });
+    return tr;
+  }));
+  }
+  const note = $("tableNote");
+  if (!rows.length) note.textContent = q ? "No visits match this filter." : emptyText();
+  else if (rows.length > (phone.matches ? 100 : MAX_TABLE_ROWS)) note.textContent = `Showing the latest ${phone.matches ? 100 : MAX_TABLE_ROWS} of ${fmtNum(rows.length)} visits. Export CSV for all of them.`;
+  else note.textContent = plural(rows.length, "visit");
+
+  const newest = selectedRecords()[0];
+  if (newest) state.newestSeen = Math.max(state.newestSeen, newest.timestamp);
+  if (state.newestSeen === 0) state.newestSeen = 1;
+  $("exportBtn").disabled = list.length === 0;
+}
+
+// Phone layout: one compact card per visit instead of a wide table.
+function renderVisitCards(rows) {
+  $("visitCards").replaceChildren(...rows.map((item) => {
+    const li = document.createElement("li");
+    if (state.newestSeen !== 0 && item.timestamp > state.newestSeen) li.className = "new";
+    const domain = document.createElement("span");
+    domain.className = "vc-domain";
+    domain.textContent = item.domain;
+    const when = document.createElement("span");
+    when.className = "vc-when";
+    when.textContent = timeAgo(item.timestamp);
+    const meta = document.createElement("span");
+    meta.className = "vc-meta";
+    meta.textContent = `${deviceName(item.deviceId)} · ${new Date(item.timestamp).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}`;
+    li.append(domain, when, meta);
+    return li;
+  }));
+}
+
+const LAPTOP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg>';
+
+function select(person, device) {
+  state.person = person;
+  state.device = device;
+  state.newestSeen = 0;
+  state.editingDevice = null;
+  state.confirmRemove = null;
+  store.set("bam-viewer-person", person);
+  store.set("bam-viewer-device", device);
+  closePeople();
+  if (phone.matches) window.scrollTo({ top: 0 });
+  renderAll();
+}
+
+// One sidebar entry (a person, "All my laptops", or a single laptop).
+function entryButton({ active, avatarText, avatarSvg, avatarClass = "", online, title, subtitle, onClick }) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "person" + (active ? " active" : "");
+  btn.setAttribute("aria-pressed", active ? "true" : "false");
+
+  const avatar = document.createElement("span");
+  avatar.className = "avatar " + avatarClass;
+  if (avatarSvg) avatar.innerHTML = avatarSvg; // static icon markup only
+  else avatar.textContent = avatarText;
+  const status = document.createElement("i");
+  status.className = "status" + (online ? " on" : "");
+  avatar.append(status);
+
+  const text = document.createElement("span");
+  text.className = "person-text";
+  const strong = document.createElement("strong");
+  strong.textContent = title;
+  strong.title = title;
+  const small = document.createElement("span");
+  small.textContent = subtitle;
+  text.append(strong, small);
+
+  btn.append(avatar, text);
+  btn.addEventListener("click", onClick);
+  return btn;
+}
+
+function deviceStatus(d) {
+  return isActive(d) ? "Active now" : `Last active ${timeAgo(d.lastSeen)}`;
+}
+
+function personSubtitle(id) {
+  const devices = devicesOf(id);
+  if (devices.some(isActive)) return "Active now";
+  const last = Math.max(0, ...devices.map((d) => d.lastSeen));
+  return last ? `Last active ${timeAgo(last)}` : "No devices yet";
+}
+
+function renderPeople() {
+  const meId = state.me.id;
+  const laptops = devicesOf(meId).slice().sort((a, b) => a.name.localeCompare(b.name));
+
+  // My laptops: "All my laptops" plus one entry per laptop.
+  const mine = [entryButton({
+    active: state.person === meId && state.device === "all",
+    avatarText: String(laptops.length),
+    avatarClass: "all",
+    online: laptops.some(isActive),
+    title: "All my laptops",
+    subtitle: laptops.length ? `${plural(laptops.length, "laptop")} · ${personSubtitle(meId)}` : "None yet",
+    onClick: () => select(meId, "all")
+  })];
+  laptops.forEach((d) => mine.push(entryButton({
+    active: state.person === meId && state.device === d.id,
+    avatarSvg: LAPTOP_SVG,
+    avatarClass: "laptop",
+    online: isActive(d),
+    title: d.name,
+    subtitle: deviceStatus(d),
+    onClick: () => select(meId, d.id)
+  })));
+  $("meList").replaceChildren(...mine);
+
+  // People who authorized me.
+  const shared = $("sharedList");
+  if (state.people.length) {
+    shared.replaceChildren(...state.people.map((p) => entryButton({
+      active: state.person === p.id,
+      avatarText: initials(p.name),
+      online: devicesOf(p.id).some(isActive),
+      title: p.name,
+      subtitle: personSubtitle(p.id),
+      onClick: () => select(p.id, "all")
+    })));
+  } else {
+    const empty = document.createElement("p");
+    empty.className = "people-empty";
+    empty.textContent = "Nobody has shared with you.";
+    shared.replaceChildren(empty);
+  }
+}
+
+function renderDeviceSelect() {
+  const select = $("deviceSelect");
+  const all = document.createElement("option");
+  all.value = "all";
+  all.textContent = "All devices";
+  const options = [all, ...devicesOf(state.person).map((d) => {
+    const o = document.createElement("option");
+    o.value = d.id;
+    o.textContent = d.name;
+    return o;
+  })];
+  select.replaceChildren(...options);
+  select.value = state.device;
+}
+
+function renderHeader() {
+  const isMe = state.person === state.me.id;
+  const device = state.device !== "all" ? state.devices.find((d) => d.id === state.device) : null;
+  const person = state.people.find((p) => p.id === state.person);
+  if (isMe) {
+    $("viewTitle").textContent = device ? device.name : "All my laptops";
+    $("viewSubtitle").textContent = device ? `Your laptop · ${deviceStatus(device)}` : state.me.email;
+  } else {
+    $("viewTitle").textContent = person ? person.name : "";
+    $("viewSubtitle").textContent = person
+      ? `${device ? device.name + " · " : ""}${person.email} · shared with you`
+      : "";
+  }
+
+  // Phone top bar shows the same title in the switcher button.
+  $("switcherTitle").textContent = $("viewTitle").textContent;
+  $("switcherSub").textContent = state.error ? "Offline · tap to switch" : $("viewSubtitle").textContent;
+  const shownDevices = state.device !== "all"
+    ? state.devices.filter((d) => d.id === state.device)
+    : devicesOf(state.person);
+  $("switcherDot").classList.toggle("on", !state.error && shownDevices.some(isActive));
+  $("menuEmail").textContent = state.me.email;
+
+  const ok = !state.error;
+  $("liveBadge").classList.toggle("on", ok);
+  $("liveText").textContent = ok ? "Live" : "Offline";
+  $("meEmail").textContent = state.me.email;
+
+  const msg = $("appMessage");
+  msg.textContent = state.error ? state.error : "";
+  msg.hidden = !state.error;
+
+  document.querySelectorAll(".segmented button").forEach((b) => b.classList.toggle("active", b.dataset.range === state.range));
+
+  const parts = [];
+  if (state.lastUpdated) parts.push(`Updated ${new Date(state.lastUpdated).toLocaleTimeString()}`);
+  const newest = selectedRecords()[0];
+  if (newest) parts.push(`last visit ${timeAgo(newest.timestamp)}`);
+  parts.push(`refreshes every ${POLL_MS / 1000} s`);
+  $("updated").textContent = parts.join(" · ");
+}
+
+function renderAll() {
+  if (!state.me) return;
+  // Wait for the first load so the default person is picked from real data.
+  if (!state.lastUpdated && !state.error) {
+    $("viewTitle").textContent = "Loading…";
+    $("viewSubtitle").textContent = "";
+    $("switcherTitle").textContent = "Loading…";
+    $("switcherSub").textContent = "";
+    $("noOneView").hidden = true;
+    $("dashView").hidden = true;
+    return;
+  }
+  if (!state.person) state.person = state.me.id;
+  renderPeople();
+  renderHeader();
+
+  // Nobody shares yet and I have no devices: show the invite prompt instead.
+  const nothing = !state.people.length && !devicesOf(state.me.id).length && !state.loading;
+  $("noOneView").hidden = !nothing;
+  $("dashView").hidden = nothing;
+  if (nothing) return;
+
+  const list = inRange();
+  renderDeviceSelect();
+  renderTiles(list);
+  renderTopSites(list);
+  renderDevices(list);
+  renderTable(list);
+  renderTrend(list);
+  renderHours(list);
+}
+
+/* =========================================================
+   Login / logout
+   ========================================================= */
+let mode = "signin";
+function setMode(next) {
+  mode = next;
+  $("nameField").hidden = mode !== "signup";
+  $("nameInput").required = mode === "signup";
+  $("passwordInput").autocomplete = mode === "signup" ? "new-password" : "current-password";
+  $("loginBtn").textContent = mode === "signup" ? "Create account" : "Sign in";
+  $("modeSwitch").textContent = mode === "signup" ? "Already have an account? Sign in" : "No account yet? Create one";
+}
+$("modeSwitch").addEventListener("click", () => { setMode(mode === "signin" ? "signup" : "signin"); loginMessage(""); });
+
+function loginMessage(text, ok = false) {
+  const el = $("loginMessage");
+  el.textContent = text;
+  el.hidden = !text;
+  el.classList.toggle("ok", ok);
+}
+
+function showLogin(text = "") {
+  clearInterval(pollTimer);
+  closePeople();
+  state.me = null;
+  $("appView").hidden = true;
+  $("loginView").hidden = false;
+  loginMessage(text);
+}
+
+async function showApp(session) {
+  state.me = { id: session.user.id, email: session.user.email, name: session.user.display_name };
+  $("loginView").hidden = true;
+  $("appView").hidden = false;
+  state.rows = [];
+  state.ids = new Set();
+  state.loadedRange = null;
+  state.lastUpdated = null;
+  state.error = null;
+  await refresh(true);
+  if (state.me) startPolling();
+}
+
+$("loginForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const btn = $("loginBtn");
+  btn.disabled = true;
+  try {
+    const email = $("emailInput").value.trim();
+    const password = $("passwordInput").value;
+    if (mode === "signup") {
+      const result = await signUp(email, password, $("nameInput").value.trim());
+      if (result.needsConfirmation) {
+        setMode("signin");
+        loginMessage("Account created. Click the link in the confirmation email, then sign in.", true);
+        return;
+      }
+      $("passwordInput").value = "";
+      await showApp(result.session);
+    } else {
+      const session = await signIn(email, password);
+      $("passwordInput").value = "";
+      await showApp(session);
+    }
+  } catch (error) {
+    loginMessage(error.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$("signOutBtn").addEventListener("click", () => {
+  signOut();
+  showLogin("You have signed out.");
+});
+
+$("togglePassword").addEventListener("click", () => {
+  const input = $("passwordInput");
+  const showing = input.type === "text";
+  input.type = showing ? "password" : "text";
+  $("togglePassword").textContent = showing ? "Show" : "Hide";
+  $("togglePassword").setAttribute("aria-pressed", String(!showing));
+  $("togglePassword").setAttribute("aria-label", showing ? "Show password" : "Hide password");
+  input.focus();
+});
+
+/* =========================================================
+   Phone navigation: laptop switcher sheet, account menu,
+   section tabs, refresh button
+   ========================================================= */
+let lastFocus = null;
+function openPeople() {
+  if (!phone.matches) return;
+  lastFocus = document.activeElement;
+  document.body.classList.add("people-open");
+  $("sheetBackdrop").hidden = false;
+  $("switcherBtn").setAttribute("aria-expanded", "true");
+  const target = document.querySelector("#peoplePanel .person.active") || $("closePeople");
+  setTimeout(() => target.focus(), 50);
+}
+function closePeople() {
+  if (!document.body.classList.contains("people-open")) return;
+  document.body.classList.remove("people-open");
+  $("sheetBackdrop").hidden = true;
+  $("switcherBtn").setAttribute("aria-expanded", "false");
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+$("switcherBtn").addEventListener("click", openPeople);
+$("closePeople").addEventListener("click", closePeople);
+$("sheetBackdrop").addEventListener("click", closePeople);
+
+function openMenu() {
+  lastFocus = document.activeElement;
+  $("menuSheet").hidden = false;
+  document.body.classList.add("sheet-open");
+  $("menuBtn").setAttribute("aria-expanded", "true");
+  $("menuClose").focus();
+}
+function closeMenu() {
+  if ($("menuSheet").hidden) return;
+  $("menuSheet").hidden = true;
+  document.body.classList.remove("sheet-open");
+  $("menuBtn").setAttribute("aria-expanded", "false");
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+$("menuBtn").addEventListener("click", openMenu);
+$("menuClose").addEventListener("click", closeMenu);
+$("menuSheet").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeMenu(); });
+$("menuInvite").addEventListener("click", () => { closeMenu(); openInvite(); });
+$("menuExport").addEventListener("click", () => { closeMenu(); $("exportBtn").click(); });
+$("menuSignOut").addEventListener("click", () => { closeMenu(); $("signOutBtn").click(); });
+
+$("refreshBtn").addEventListener("click", async () => {
+  const btn = $("refreshBtn");
+  if (btn.classList.contains("spinning")) return;
+  btn.classList.add("spinning");
+  await refresh(false);
+  setTimeout(() => btn.classList.remove("spinning"), 400);
+});
+
+// Bottom tabs jump to a section; the tab for the section in view is highlighted.
+const navButtons = [...document.querySelectorAll(".bottom-nav button")];
+navButtons.forEach((btn) => btn.addEventListener("click", () => {
+  const target = $(btn.dataset.target);
+  if (target && !target.hidden) target.scrollIntoView({ block: "start" });
+}));
+if ("IntersectionObserver" in window) {
+  const seen = new Map();
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e) => seen.set(e.target.id, e.isIntersecting));
+    const current = navButtons.find((b) => seen.get(b.dataset.target));
+    if (current) navButtons.forEach((b) => b.classList.toggle("active", b === current));
+  }, { rootMargin: "-35% 0px -55% 0px" });
+  navButtons.forEach((b) => { const t = $(b.dataset.target); if (t) observer.observe(t); });
+}
+
+// Hide a tapped chart value when the user taps elsewhere or scrolls.
+document.addEventListener("pointerdown", hideTip, true);
+window.addEventListener("scroll", hideTip, { passive: true });
+
+// Switching between phone and desktop layouts (rotation, resizing).
+const onLayoutChange = () => {
+  closePeople();
+  if (state.me) renderAll();
+};
+if (phone.addEventListener) phone.addEventListener("change", onLayoutChange);
+else phone.addListener(onLayoutChange);
+
+/* =========================================================
+   Controls
+   ========================================================= */
+$("deviceSelect").addEventListener("change", (e) => {
+  select(state.person, e.target.value);
+});
+
+document.querySelectorAll(".segmented button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    state.range = btn.dataset.range;
+    store.set("bam-viewer-range", state.range);
+    refresh(true);
+  });
+});
+
+$("search").addEventListener("input", (e) => {
+  state.search = e.target.value;
+  renderTable(inRange());
+});
+
+function csvCell(v) { return `"${String(v).replace(/"/g, '""')}"`; }
+$("exportBtn").addEventListener("click", () => {
+  const lines = ["domain,device,person,timestamp_iso,local_time"];
+  inRange().forEach((a) => {
+    lines.push([csvCell(a.domain), csvCell(deviceName(a.deviceId)), csvCell(personName(a.ownerId)),
+      new Date(a.timestamp).toISOString(), csvCell(new Date(a.timestamp).toLocaleString())].join(","));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  const who = personName(state.person).replace(/[^\w-]+/g, "_");
+  link.download = `activity-${who}-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+});
+
+async function openInvite() {
+  $("inviteDialog").hidden = false;
+  $("inviteCode").textContent = "…";
+  $("inviteExpiry").textContent = "";
+  try {
+    const rows = await rpc("create_invite");
+    $("inviteCode").textContent = rows[0].code.replace(/(.{4})/, "$1-");
+    $("inviteExpiry").textContent = `Valid until ${new Date(rows[0].expires_at).toLocaleString()}. Works once.`;
+  } catch (error) {
+    $("inviteCode").textContent = "Error";
+    $("inviteExpiry").textContent = error.message;
+  }
+  $("closeInvite").focus();
+}
+$("inviteBtn").addEventListener("click", openInvite);
+$("inviteBtn2").addEventListener("click", openInvite);
+$("closeInvite").addEventListener("click", () => { $("inviteDialog").hidden = true; refresh(false); });
+$("inviteDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) $("closeInvite").click(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!$("inviteDialog").hidden) $("closeInvite").click();
+  else if (!$("menuSheet").hidden) closeMenu();
+  else closePeople();
+});
+$("copyBtn").addEventListener("click", async () => {
+  const code = $("inviteCode").textContent.replace("-", "");
+  try { await navigator.clipboard.writeText(code); $("copyBtn").textContent = "Copied"; }
+  catch { $("copyBtn").textContent = "Select and copy"; }
+  setTimeout(() => { $("copyBtn").textContent = "Copy"; }, 1500);
+});
+
+// Keep "x min ago" and active dots fresh between data refreshes.
+setInterval(() => { if (state.me && !document.hidden) renderAll(); }, 30000);
+
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (state.me) { const l = inRange(); renderTrend(l); renderHours(l); } }, 150);
+});
+
+/* ---------- Start ---------- */
+setMode("signin");
+const existing = store.get(SESSION_KEY);
+if (existing) showApp(existing);
+else showLogin();
+</script>
+</body>
+</html>

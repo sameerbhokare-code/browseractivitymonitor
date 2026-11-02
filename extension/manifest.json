@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Browser Activity Monitor",
+  "version": "2.2.0",
+  "description": "A consent-based browser activity sharing extension.",
+  "permissions": [
+    "storage",
+    "webNavigation",
+    "alarms"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Browser Activity Monitor"
+  }
+}

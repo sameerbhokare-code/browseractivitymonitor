@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Activity Monitor</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header>
+      <div class="logo">BAM</div>
+      <div>
+        <h2>Browser Activity Monitor</h2>
+        <p>Personal activity sharing</p>
+      </div>
+    </header>
+
+    <section class="status-card">
+      <p class="label">SHARING STATUS</p>
+      <h3><span id="statusDot" class="dot"></span><span id="status">Disabled</span></h3>
+      <p id="description">
+        Activity sharing is currently paused.
+      </p>
+
+      <button id="toggleBtn">
+        Enable sharing
+      </button>
+
+      <p id="message" class="message" hidden></p>
+
+      <button id="dashboardBtn" class="dashboard-btn">
+        Open live dashboard
+      </button>
+    </section>
+
+    <section class="account-card">
+      <div>
+        <p class="label">CLOUD</p>
+        <p id="cloudLine" class="cloud-line">Not signed in</p>
+      </div>
+      <button id="accountBtn" class="account-btn">Account &amp; sharing</button>
+    </section>
+
+    <section class="notice">
+      <strong>Privacy notice</strong>
+      <p id="noticeText">
+        When enabled, this extension records website
+        domains visited in this browser. Records are
+        stored locally. You can pause sharing or
+        delete your records at any time.
+      </p>
+    </section>
+
+    <section class="history">
+      <div class="history-header">
+        <h3>Shared activity <span id="count" class="count"></span></h3>
+        <button id="clearBtn" class="clear-btn">
+          Clear
+        </button>
+      </div>
+
+      <div id="activityList" class="activity-list">
+        <p class="empty">No activity recorded yet.</p>
+      </div>
+    </section>
+
+    <footer>
+      Browser Activity Monitor · Version 1.0
+    </footer>
+
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>

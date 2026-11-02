@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAM Account &amp; Sharing</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/account.css">
+</head>
+<body>
+  <div class="page narrow">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">BAM</div>
+        <div>
+          <h1>Account &amp; sharing</h1>
+          <p class="sub">Cloud sync and who can see your activity</p>
+        </div>
+      </div>
+      <a class="btn ghost" href="dashboard.html">Open dashboard</a>
+    </header>
+
+    <!-- Supabase keys missing -->
+    <section id="notConfigured" class="card stack" hidden>
+      <h2>Connect your Supabase project</h2>
+      <p class="muted">
+        Open <code>extension/config.js</code>, paste your Supabase Project URL and anon public key,
+        save the file, then reload the extension from <code>chrome://extensions</code>.
+      </p>
+    </section>
+
+    <!-- Signed out -->
+    <section id="signedOut" class="card stack" hidden>
+      <div class="segmented" role="tablist">
+        <button id="tabSignIn" class="active" type="button">Sign in</button>
+        <button id="tabSignUp" type="button">Create account</button>
+      </div>
+
+      <form id="authForm" class="form">
+        <label id="nameField" hidden>
+          Your name <span class="muted">(shown to people you share with)</span>
+          <input id="nameInput" type="text" maxlength="60" autocomplete="name">
+        </label>
+        <label>
+          Email
+          <input id="emailInput" type="email" required autocomplete="email">
+        </label>
+        <label>
+          Password <span class="muted">(at least 8 characters)</span>
+          <input id="passwordInput" type="password" required minlength="8" autocomplete="current-password">
+        </label>
+        <button id="authSubmit" class="btn primary" type="submit">Sign in</button>
+      </form>
+      <p id="authMessage" class="form-message" hidden></p>
+    </section>
+
+    <!-- Signed in -->
+    <div id="signedIn" hidden>
+
+      <section class="card stack">
+        <div class="row-between">
+          <div>
+            <p class="eyebrow">Signed in as</p>
+            <p id="accountName" class="big"></p>
+            <p id="accountEmail" class="muted"></p>
+          </div>
+          <button id="signOutBtn" class="btn ghost" type="button">Sign out</button>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <h2>This browser</h2>
+        <form id="deviceForm" class="inline-form">
+          <input id="deviceNameInput" class="plain" type="text" maxlength="60" required
+                 placeholder="Name this laptop" aria-label="Name for this laptop">
+          <button id="deviceSaveBtn" class="btn ghost" type="submit">Save name</button>
+        </form>
+        <p class="muted hint">Give each laptop a clear name, for example "Lab PC 3" or "Office laptop". This is how it appears in the web app.</p>
+
+        <label class="switch-row">
+          <input id="cloudToggle" type="checkbox">
+          <span class="switch"></span>
+          <span>
+            <strong>Cloud sync</strong><br>
+            <span class="muted">
+              Upload website domains and visit times recorded from now on to your account.
+              Visits recorded before you switch this on stay only in this browser.
+            </span>
+          </span>
+        </label>
+
+        <div id="nameBox" class="consent" hidden>
+          <p class="eyebrow">Name this laptop</p>
+          <p>
+            Give this laptop a name so you can recognise it in the web app,
+            for example <strong>Ravi's laptop</strong> or <strong>Lab PC 3</strong>.
+          </p>
+          <form id="nameBoxForm" class="inline-form">
+            <input id="nameBoxInput" class="plain" type="text" maxlength="60" required
+                   placeholder="Laptop or user name" aria-label="Laptop or user name">
+            <button id="nameBoxSave" class="btn primary" type="submit">Save and turn on sync</button>
+          </form>
+          <div class="row-gap">
+            <button id="nameBoxCancel" class="btn ghost" type="button">Cancel</button>
+          </div>
+        </div>
+
+        <div class="sync-status">
+          <span id="syncStatus" class="muted"></span>
+          <div class="row-gap">
+            <button id="syncNowBtn" class="btn ghost" type="button">Sync now</button>
+            <button id="deleteCloudBtn" class="btn danger" type="button">Delete my cloud activity</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <h2>Who can see my activity</h2>
+        <p class="muted">
+          People listed here can see the domains and times uploaded from your browsers,
+          only for visits after you authorized them. You can revoke at any time.
+        </p>
+        <ul id="outgoingList" class="people"></ul>
+
+        <form id="codeForm" class="inline-form">
+          <input id="codeInput" type="text" maxlength="12" placeholder="Enter invite code" autocomplete="off" aria-label="Invite code">
+          <button class="btn ghost" type="submit">Check code</button>
+        </form>
+
+        <div id="consentBox" class="consent" hidden>
+          <p class="eyebrow">Authorization request</p>
+          <p class="consent-who"><strong id="consentName"></strong> <span id="consentEmail" class="muted"></span></p>
+          <p>
+            This person will be able to see <strong>which websites (domains only) you visit and when</strong>,
+            from every browser where you have cloud sync switched on, starting now.
+            They will not see full web addresses, searches, page content, or anything from before now.
+            You can revoke this at any time on this page.
+          </p>
+          <div class="row-gap">
+            <button id="authorizeBtn" class="btn primary" type="button">Authorize</button>
+            <button id="cancelConsentBtn" class="btn ghost" type="button">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <h2>People sharing with me</h2>
+        <p class="muted">
+          To ask someone to share with you, create a code and give it to them.
+          They enter it in their own extension and decide whether to authorize you.
+        </p>
+        <ul id="incomingList" class="people"></ul>
+
+        <div class="row-gap">
+          <button id="createInviteBtn" class="btn ghost" type="button">Create invite code</button>
+        </div>
+        <div id="inviteBox" class="invite" hidden>
+          <span id="inviteCode" class="code"></span>
+          <span id="inviteExpiry" class="muted"></span>
+          <button id="copyInviteBtn" class="btn ghost" type="button">Copy</button>
+        </div>
+      </section>
+
+      <p id="pageMessage" class="form-message" hidden></p>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/account.js"></script>
+</body>
+</html>

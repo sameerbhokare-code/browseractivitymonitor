@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAM Dashboard</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="page">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">BAM</div>
+        <div>
+          <h1>Browser Activity Monitor</h1>
+          <p id="subtitle" class="sub">Activity dashboard for this browser</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div id="liveBadge" class="live-badge">
+          <span class="pulse"></span>
+          <span id="liveText">Live</span>
+        </div>
+        <button id="toggleBtn" class="btn primary">Enable sharing</button>
+      </div>
+    </header>
+
+    <p id="message" class="message" hidden></p>
+
+    <nav class="filters" aria-label="Filters">
+      <div class="filter-group">
+      <select id="sourceSelect" class="source-select" aria-label="Whose activity to show">
+        <option value="local">This browser (local)</option>
+      </select>
+      <div class="segmented" role="group">
+        <button data-range="today">Today</button>
+        <button data-range="7d">7 days</button>
+        <button data-range="30d">30 days</button>
+        <button data-range="all">All time</button>
+      </div>
+      </div>
+      <span id="updated" class="updated"></span>
+    </nav>
+
+    <section class="tiles">
+      <div class="tile">
+        <p class="tile-label">Visits</p>
+        <p id="statVisits" class="tile-value">0</p>
+        <p id="statVisitsNote" class="tile-note"></p>
+      </div>
+      <div class="tile">
+        <p class="tile-label">Unique websites</p>
+        <p id="statUnique" class="tile-value">0</p>
+        <p class="tile-note">distinct domains</p>
+      </div>
+      <div class="tile">
+        <p class="tile-label">Most visited</p>
+        <p id="statTop" class="tile-value small">–</p>
+        <p id="statTopNote" class="tile-note"></p>
+      </div>
+      <div class="tile">
+        <p class="tile-label">Busiest hour</p>
+        <p id="statHour" class="tile-value small">–</p>
+        <p id="statHourNote" class="tile-note"></p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card wide">
+        <h2 id="trendTitle">Visits per day</h2>
+        <div id="trendChart" class="chart"></div>
+      </article>
+
+      <article class="card" id="topCard">
+        <h2>Top websites</h2>
+        <div id="topList" class="bars"></div>
+      </article>
+
+      <article class="card" id="hourCard">
+        <h2>Visits by hour of day</h2>
+        <div id="hourChart" class="chart"></div>
+      </article>
+
+      <article class="card wide" id="devicesCard" hidden>
+        <h2>Devices</h2>
+        <ul id="deviceList" class="device-list"></ul>
+      </article>
+
+      <article class="card wide">
+        <div class="card-head">
+          <h2>Recent visits</h2>
+          <div class="card-tools">
+            <input id="search" type="search" placeholder="Filter by domain" aria-label="Filter by domain">
+            <button id="exportBtn" class="btn ghost">Export CSV</button>
+            <button id="clearBtn" class="btn danger">Clear</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Website</th><th id="deviceCol" hidden>Device</th><th>Time</th><th class="right">When</th></tr>
+          </thead>
+          <tbody id="visitRows"></tbody>
+        </table>
+        </div>
+        <p id="tableNote" class="table-note"></p>
+      </article>
+    </section>
+
+    <footer id="footerNote">
+      Records are stored only in this browser. Only domains and times are kept, never full URLs or page content.
+    </footer>
+  </div>
+
+  <div id="tooltip" class="tooltip" role="status" hidden>
+    <strong id="tipValue"></strong>
+    <span id="tipLabel"></span>
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
